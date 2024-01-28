@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.springframework.stereotype.Component;
 import ubb.mihai.exam_2pl.scheduling.exception.ConflictException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,12 +25,17 @@ public class ConflictGraph {
         if (holders != null && holders.contains(requestingId)) {
             throw new ConflictException(STR."Cycle dependency between \{requestingId} and \{holderId}");
         }
+        // The requesting transaction already has dependencies
         if (dependencyGraph.containsKey(requestingId)) {
             if (!dependencyGraph.get(requestingId).contains(holderId)) {
                 dependencyGraph.get(requestingId).add(holderId);
             }
-        } else {
-            dependencyGraph.put(requestingId, List.of(holderId));
+        }
+        // The requesting transaction did not have any dependencies yet
+        else {
+            List<Long> holdersList = new ArrayList<>();
+            holdersList.add(holderId);
+            dependencyGraph.put(requestingId, holdersList);
         }
     }
 
